@@ -108,7 +108,7 @@ dotnet publish -r win-x64 -c Release
 
 在上面的项目构建成功后，将会把 `ilcompiler` 包缓存，并可以在该目录 `%USERPROFILE%/.nuget/packages/runtime.win-x64.microsoft.dotnet.ilcompiler/7.0.1/sdk` 找到链接依赖的一些静态库（注意，版本号可能会变更）。
 
-创建 `Rust` 项目，名称为：`encryption-test`：
+在 `call-net-from-rust-statically` 目录中创建 `Rust` 项目：
 
 ```powershell
 cd call-net-from-rust-statically
@@ -120,8 +120,6 @@ cargo init
 ```powershell
 cargo add windows
 ```
-
-**注意，上面的 `C#` 项目要在 `encryption-test` 项目内，即 `encryption-test/des-lib`。**
 
 添加 `build.rs`，一定要注意修改 `sdk_path` 中的 `ilcompiler` 版本号（本文讲的是实现步骤，最终的代码我会把 `des-lib` 的构建也放在 `build.rs` 中，并从构建的输出中寻找这个版本号，而不需要写死）：
 
