@@ -1,0 +1,11 @@
+[package]
+name = "call-net-from-rust-statically"
+version = "0.1.0"
+edition = "2021"
+authors = ["hamflx <a@hamflx.cn>"]
+
+[dependencies]
+windows = "0.47.0"
+
+[build-dependencies]
+ignore = "0.4.20"

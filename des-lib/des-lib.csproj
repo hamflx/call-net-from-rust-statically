@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>des_lib</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <NativeLib>Static</NativeLib>
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+</Project>
