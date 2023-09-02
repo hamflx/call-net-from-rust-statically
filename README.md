@@ -177,6 +177,33 @@ fn main() {
 }
 ```
 
+## Linux 兼容
+
+Linux 系统上，需要链接的库有些许不一样，具体参见：<https://github.com/hamflx/call-net-from-rust-statically/commit/6cb7e9adb0a8faa48afc27e95267163131ca0717> 和 <https://github.com/hamflx/call-net-from-rust-statically/commit/95d155a309ff5d47b5800fbf8551e3343f3302b0>。
+
+如果你加了额外的功能导致构建失败，可以自行查找所依赖的库，并链接。
+
+例如，构建时报错，`undefined reference to ``RhRegisterOSModule'`，我们可以运行如下的代码找到所需的依赖：
+
+```bash
+# 这个路径按你的需要更改。
+cd /home/hamflx/.nuget/packages/runtime.linux-x64.microsoft.dotnet.ilcompiler/7.0.10
+
+find . -name '*.a' | xargs -I{} nm -o '{}' | grep RhRegisterOSModule
+```
+
+此时，输出结果大致如下：
+
+```plaintext
+./framework/libSystem.Native.a:pal_threading.c.o:0000000000000100 T SystemNative_LowLevelMonitor_Release
+```
+
+因此，我们可以链接 `System.Native` 库。
+
+**注意，有时输出结果可能有多个，我们需要的是具有 `T` 标志的库。**
+
+**注意，Linux 系统下，库的顺序会影响符号的解析，有时报错 `undefined reference` 可能调整下顺序即可。**
+
 ## 最终版本
 
 仓库地址：<https://github.com/hamflx/call-net-from-rust-statically>，在本文的基础增加了自动构建 `C#` 项目，自动查找 `ilcompiler` 的路径并链接。
