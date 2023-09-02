@@ -12,7 +12,7 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 
-  <Target Name="PrepareNativeLibTarget" AfterTargets="Publish">
+  <Target Name="PrepareNativeLibTarget" AfterTargets="Publish" Condition=" '$(OS)' != 'Windows_NT' ">
     <Copy
       SourceFiles="$(ProjectDir)$(PublishDir)des-lib.a"
       DestinationFiles="$(ProjectDir)$(PublishDir)libdes-lib.a"
