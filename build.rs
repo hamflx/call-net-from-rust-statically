@@ -6,9 +6,15 @@ fn main() {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let csharp_project = "des-lib";
 
+    let (rid, pattern) = if cfg!(windows) {
+        ("win-x64", "sdk\\System.Private.CoreLib.dll")
+    } else {
+        ("linux-x64", "sdk/System.Private.CoreLib.dll")
+    };
+
     // 运行 dotnet publish 命令。
     let output = Command::new("dotnet")
-        .args(["publish", "-v", "d", "-r", "win-x64", "-c", "Release"])
+        .args(["publish", "-v", "d", "-r", rid, "-c", "Release"])
         .current_dir(PathBuf::from(manifest_dir).join(csharp_project))
         .output()
         .unwrap();
@@ -19,19 +25,28 @@ fn main() {
     }
 
     // 在构建的日志中查找 ilcompiler 的安装位置。
-    let pattern = "sdk\\System.Private.CoreLib.dll";
     let core_lib_path: PathBuf = out
         .find(pattern)
         .and_then(|pos| {
-            let matched = &out[..pos + pattern.len() + 1];
-            matched.rfind(':').map(|begin| &matched[begin - 1..])
+            let matched = &out[..pos + pattern.len()];
+            if cfg!(windows) {
+                matched.rfind(':').map(|begin| &matched[begin - 1..])
+            } else {
+                matched.rfind("/home").map(|begin| &matched[begin..])
+            }
         })
         .unwrap_or_else(|| {
             std::fs::write("dotnet-output.txt", &out).unwrap();
             panic!("ILCompiler sdk path not found in the dotnet command output: dotnet-output.txt")
         })
         .into();
-    let sdk_path = core_lib_path.parent().unwrap().to_str().unwrap();
+    let ilcompiler_path = core_lib_path
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap();
 
     // 找到 C# 项目中的 *.cs 和 *.csproj 文件，如果这些文件发生变化，则应重新构建。
     let mut types = TypesBuilder::new();
@@ -48,13 +63,23 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-link-arg=/INCLUDE:NativeAOT_StaticInitialization");
-    println!("cargo:rustc-link-search={sdk_path}");
+    println!("cargo:rustc-link-search={ilcompiler_path}/sdk");
+    println!("cargo:rustc-link-search={ilcompiler_path}/framework");
+
+    println!("cargo:rustc-link-lib=static={csharp_project}");
     println!(
-        "cargo:rustc-link-search={manifest_dir}\\{csharp_project}\\bin\\Release\\net7.0\\win-x64\\publish"
+        "cargo:rustc-link-search={manifest_dir}/{csharp_project}/bin/Release/net7.0/{rid}/publish"
     );
+
+    if cfg!(windows) {
+        println!("cargo:rustc-link-arg=/INCLUDE:NativeAOT_StaticInitialization");
+        println!("cargo:rustc-link-lib=static=System.Globalization.Native.Aot");
+    } else {
+        println!("cargo:rustc-link-arg=-Wl,--require-defined,NativeAOT_StaticInitialization");
+        println!("cargo:rustc-link-arg=-lstdc++");
+        println!("cargo:rustc-link-lib=static=System.Globalization.Native");
+        println!("cargo:rustc-link-lib=static=System.Native");
+    }
     println!("cargo:rustc-link-lib=static=bootstrapperdll");
     println!("cargo:rustc-link-lib=static=Runtime.WorkstationGC");
-    println!("cargo:rustc-link-lib=static=System.Globalization.Native.Aot");
-    println!("cargo:rustc-link-lib=static={csharp_project}");
 }

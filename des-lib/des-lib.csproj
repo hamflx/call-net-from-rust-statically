@@ -12,4 +12,11 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 
+  <Target Name="PrepareNativeLibTarget" AfterTargets="Publish">
+    <Copy
+      SourceFiles="$(ProjectDir)$(PublishDir)des-lib.a"
+      DestinationFiles="$(ProjectDir)$(PublishDir)libdes-lib.a"
+    />
+  </Target>
+
 </Project>
