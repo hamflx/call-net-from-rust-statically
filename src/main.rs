@@ -1,3 +1,5 @@
+extern crate windows;
+
 extern "C" {
     fn wtf_des_encrypt(message: *const u8, key: *const u8) -> *const u8;
     fn wtf_des_decrypt(cipher_text: *const u8, key: *const u8) -> *const u8;

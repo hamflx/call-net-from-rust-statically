@@ -53,7 +53,6 @@ fn main() {
     println!(
         "cargo:rustc-link-search={manifest_dir}\\{csharp_project}\\bin\\Release\\net7.0\\win-x64\\publish"
     );
-    println!("cargo:rustc-link-lib=static=windows");
     println!("cargo:rustc-link-lib=static=bootstrapperdll");
     println!("cargo:rustc-link-lib=static=Runtime.WorkstationGC");
     println!("cargo:rustc-link-lib=static=System.Globalization.Native.Aot");
