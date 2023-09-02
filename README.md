@@ -140,7 +140,8 @@ fn main() {
         des_lib_path.display()
     );
 
-    println!("cargo:rustc-link-lib=static=windows");
+    // 新版本的 windows crate 已不再提供 windows.lib，此处不再需要。
+    // println!("cargo:rustc-link-lib=static=windows");
     println!("cargo:rustc-link-lib=static=bootstrapperdll");
     println!("cargo:rustc-link-lib=static=Runtime.WorkstationGC");
     println!("cargo:rustc-link-lib=static=System.Globalization.Native.Aot");
@@ -151,6 +152,9 @@ fn main() {
 接下来就是调用了，在 `main.rs` 中添加：
 
 ```rust
+// 链接 windows crate。
+extern crate windows;
+
 extern "C" {
     fn wtf_des_encrypt(message: *const u8, key: *const u8) -> *const u8;
     fn wtf_des_decrypt(cipher_text: *const u8, key: *const u8) -> *const u8;
